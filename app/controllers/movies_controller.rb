@@ -12,12 +12,12 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-    @all_ratings = Movie.ratings
+    @all_ratings = ['G','PG','PG-13','R']
     
     if params[:ratings] != nil then
       @ratings = params[:ratings].keys
       @movies = Movie.where(rating: @ratings)
-      flash[:notice] = "#{@ratings} was successfully created."
+      flash[:notice] = "#{@ratings} was created."
     else
       @ratings = @all_ratings
       flash[:notice] = "#{@ratings} is default."
