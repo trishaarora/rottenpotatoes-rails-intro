@@ -13,21 +13,48 @@ class MoviesController < ApplicationController
   def index
     @movies = Movie.all
     @all_ratings = ['G','PG','PG-13','R']
-    
+    prev_param = false
+    sort_param = false
+      
     if params[:ratings] != nil then
       @ratings = params[:ratings].keys
       @movies = Movie.where(rating: @ratings)
-      flash[:notice] = "#{@ratings} was created."
-    else
+      session[:ratings] = params[:ratings]
+    elsif session[:ratings] == nil
       @ratings = @all_ratings
-      flash[:notice] = "#{@ratings} is default."
+    else
+      params[:ratings] = session[:ratings]
+      @ratings = params[:ratings].keys
+      prev_param = true
+    end
+    
+    if params[:sort] == nil and session[:sort] != ''
+      params[:sort] = session[:sort]
+      sort_param = true
     end
     
     sort = params[:sort]
+        
+    if sort != nil
+      session[:sort] = sort
+    end
+    
     if sort == 'title' then
        @movies = Movie.all.sort_by { |movie| movie.title }
     elsif sort == 'release_date' then
        @movies = Movie.all.sort_by { |movie| movie.release_date }
+    end
+    
+    if session[:sort] != '' and session[:ratings] !=nil
+      if prev_param == true and sort_param == true
+        redirect_to url_for(sort: params[:sort], ratings: params[:ratings])
+      elsif sort_param == true and params[:ratings] == nil
+        redirect_to url_for(sort: params[:sort])
+      elsif prev_param == true and params[:rating] == nil
+        redirect_to url_for(ratings: params[:ratings])
+      elsif (prev_param == true or sort_param == true) and (params[:sort] != nil and params[:ratings] != nil)
+        redirect_to url_for(sort: params[:sort], ratings: params[:ratings])
+      end
     end
   end
 
