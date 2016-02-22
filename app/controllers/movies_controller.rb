@@ -40,19 +40,23 @@ class MoviesController < ApplicationController
     end
     
     if sort == 'title' then
-       @movies = Movie.all.sort_by { |movie| movie.title }
+       ratingsmovies = Movie.where(rating: @ratings)
+       @movies = ratingsmovies.sort_by { |movie| movie.title }
+       #params[:ratings] = session[:ratings]
     elsif sort == 'release_date' then
-       @movies = Movie.all.sort_by { |movie| movie.release_date }
+       ratingsmovies = Movie.where(rating: @ratings)
+       @movies = ratingsmovies.sort_by { |movie| movie.release_date }
+       #params[:ratings] = session[:ratings]
     end
     
-    if session[:sort] != '' and session[:ratings] !=nil
+    if session[:sort] != '' and session[:ratings] != nil
       if prev_param == true and sort_param == true
         redirect_to url_for(sort: params[:sort], ratings: params[:ratings])
+      elsif prev_param == true and params[:ratings] == nil
+        redirect_to url_for(ratings: params[:ratings])
       elsif sort_param == true and params[:ratings] == nil
         redirect_to url_for(sort: params[:sort])
-      elsif prev_param == true and params[:rating] == nil
-        redirect_to url_for(ratings: params[:ratings])
-      elsif (prev_param == true or sort_param == true) and (params[:sort] != nil and params[:ratings] != nil)
+      elsif (prev_param == true or sort_param == true) and (params[:sort ] != nil and params[:ratings] != nil)
         redirect_to url_for(sort: params[:sort], ratings: params[:ratings])
       end
     end
